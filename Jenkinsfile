@@ -46,10 +46,11 @@ pipeline {
 
     stage('Create Release') {
       when {
-        expression {
-          GIT_BRANCH == "main"
-          !skipRemainingStages
+        allOf {
+          expression { GIT_BRANCH == "main" }
+          expression { !skipRemainingStages }
         }
+
       }
       steps {
         script {
