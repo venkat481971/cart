@@ -1,70 +1,116 @@
+//pipeline {
+//
+//  agent {
+//    node {
+//      label 'workstation'
+//    }
+//  }
+//
+//  environment {
+//    TOKEN = credentials('GITHUB_TOKEN')
+//  }
+//
+//  stages {
+//
+//    stage('Check Release') {
+//      when {
+//        expression {
+//          GIT_BRANCH == "main"
+//        }
+//      }
+//      steps {
+//        script {
+//          skipRemainingStages = true
+//          def statusCode = sh script:"git ls-remote --tags origin | grep \$(cat VERSION | grep '^#' | sed -e 's|#|v|')", returnStatus:true
+//          if (statusCode == 0) {
+//            error "VERSION is already tagged, Will not proceed further"
+//          }
+//        }
+//      }
+//    }
+//
+//    stage('Download Dependencies') {
+//      steps {
+//        sh '''
+//          npm install
+//        '''
+//      }
+//    }
+//
+//    stage('Create Release') {
+//      when {
+//        expression {
+//          GIT_BRANCH == "main"
+//        }
+//      }
+//      steps {
+//        script {
+//          def statusCode = sh script:"git ls-remote --tags origin | grep \$(cat VERSION | sed -e 's|#|v|')", returnStatus:true
+//          if (statusCode == 0) {
+//            error "VERSION is already tagged, Use new version number"
+//          } else {
+//            sh '''
+//                mkdir temp
+//                GIT_URL=$(echo $GIT_URL | sed -e "s|github.com|${TOKEN}@github.com|")
+//                cd temp
+//                git clone $GIT_URL .
+//                TAG=$(cat VERSION | grep "^#[0-9].[0-9].[0-9]" | head -1|sed -e "s|#|v|")
+//                git tag $TAG
+//                git push --tags
+//              '''
+//          }
+//        }
+//      }
+//    }
+//
+//  }
+//
+//}
+////
+////
+
+def skipRemainingStages = false
+
 pipeline {
-
-  agent {
-    node {
-      label 'workstation'
-    }
-  }
-
-  environment {
-    TOKEN = credentials('GITHUB_TOKEN')
-  }
+  agent any
 
   stages {
-
-    stage('Check Release') {
-      when {
-        expression {
-          GIT_BRANCH == "main"
-        }
-      }
+    stage("Stage 1") {
       steps {
         script {
           skipRemainingStages = true
-          def statusCode = sh script:"git ls-remote --tags origin | grep \$(cat VERSION | grep '^#' | sed -e 's|#|v|')", returnStatus:true
-          if (statusCode == 0) {
-            error "VERSION is already tagged, Will not proceed further"
-          }
+
+          println "skipRemainingStages = ${skipRemainingStages}"
         }
       }
     }
 
-    stage('Download Dependencies') {
-      steps {
-        sh '''
-          npm install
-        '''
-      }
-    }
-
-    stage('Create Release') {
+    stage("Stage 2") {
       when {
         expression {
-          GIT_BRANCH == "main"
+          !skipRemainingStages
         }
       }
+
       steps {
         script {
-          def statusCode = sh script:"git ls-remote --tags origin | grep \$(cat VERSION | sed -e 's|#|v|')", returnStatus:true
-          if (statusCode == 0) {
-            error "VERSION is already tagged, Use new version number"
-          } else {
-            sh '''
-                mkdir temp 
-                GIT_URL=$(echo $GIT_URL | sed -e "s|github.com|${TOKEN}@github.com|")
-                cd temp
-                git clone $GIT_URL .
-                TAG=$(cat VERSION | grep "^#[0-9].[0-9].[0-9]" | head -1|sed -e "s|#|v|")
-                git tag $TAG 
-                git push --tags                  
-              '''
-          }
+          println "This text wont show up...."
         }
       }
     }
 
-  }
+    stage("Stage 3") {
+      when {
+        expression {
+          !skipRemainingStages
+        }
+      }
 
+      steps {
+        script {
+          println "This text wont show up...."
+        }
+      }
+    }
+  }
 }
-//
-//
