@@ -20,7 +20,7 @@ pipeline {
       }
       steps {
         script {
-          def statusCode = sh script:"git ls-remote --tags origin | grep \$(cat VERSION | sed -e 's|#|v|')", returnStatus:true
+          def statusCode = sh script:"git ls-remote --tags origin| awk '{print \$1}' | grep \$(cat VERSION | sed -e 's|#|v|')", returnStatus:true
           if (statusCode == 0) {
             error "VERSION is already tagged, Will not proceed further"
           }
