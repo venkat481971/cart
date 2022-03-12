@@ -24,6 +24,8 @@ pipeline {
           def statusCode = sh script:"git ls-remote --tags origin | grep \$(cat VERSION | grep '^#' | sed -e 's|#|v|')", returnStatus:true
           if (statusCode == 0) {
             skipRemainingStages = true
+          } else {
+            skipRemainingStages = false
           }
         }
       }
