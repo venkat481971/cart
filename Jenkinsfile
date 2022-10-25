@@ -12,12 +12,18 @@ pipeline {
     }
 
     stage('Style Checks') {
+      when {
+        branch 'master'
+      }
       steps {
         echo 'Code Quality'
       }
     }
 
     stage('Unit Tests') {
+      when {
+        branch 'master'
+      }
       steps {
         echo 'Unit tests'
       }
